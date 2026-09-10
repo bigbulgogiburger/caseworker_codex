@@ -1,0 +1,95 @@
+{
+  "name": "caseworker",
+  "version": "0.3.0",
+  "description": "Issue-driven development harness for Claude Code with pluggable trackers (local files by default, Jira, GitHub): issue router, saved workflows, fail-closed commit/push gate hook (Bash and PowerShell), bookkeeping scripts.",
+  "author": {
+    "name": "bigbulgogiburger"
+  },
+  "homepage": "https://github.com/bigbulgogiburger/caseworker_codex",
+  "repository": "https://github.com/bigbulgogiburger/caseworker_codex",
+  "license": "MIT",
+  "keywords": [
+    "issue-tracker",
+    "local-first",
+    "jira",
+    "harness",
+    "workflow",
+    "gate",
+    "codex"
+  ],
+  "skills": "./skills/",
+  "subagents": "./subagents/",
+  "hooks": {
+    "description": "caseworker hooks. (1) PreToolUse Bash|PowerShell: git commit / git push are judged against the branch state JSON (gate + review records) — both shell tools, because matching only one leaves the other unguarded. (2) PreToolUse Edit|Write|MultiEdit|NotebookEdit: files matching harness.json.protected[] cannot be edited (verification assets, gate scripts). (3) PostToolUse Edit|Write|MultiEdit: md-lint warns (never blocks) on frontmatter / [[link]] / relative .md link / LOG.md line format of the markdown file just written. (4) SessionStart: session-brief injects branch·issue·stage·gate/review freshness·PROGRESS tail·loop status as additionalContext (≤3,500 chars; silent outside a harness project). (5) Stop: when a completeness loop is active for this session (.loop/session.local.json), the stop is blocked and the next round prompt is fed back; verdict comes from loop.mjs on disk.",
+    "hooks": {
+      "PreToolUse": [
+        {
+          "matcher": "Bash|PowerShell",
+          "hooks": [
+            {
+              "type": "command",
+              "command": "node \"${PLUGIN_ROOT}/scripts/commit-gate.mjs\"",
+              "timeout": 30
+            }
+          ]
+        },
+        {
+          "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+          "hooks": [
+            {
+              "type": "command",
+              "command": "node \"${PLUGIN_ROOT}/scripts/protect-gate.mjs\"",
+              "timeout": 15
+            }
+          ]
+        }
+      ],
+      "PostToolUse": [
+        {
+          "matcher": "Edit|Write|MultiEdit",
+          "hooks": [
+            {
+              "type": "command",
+              "command": "node \"${PLUGIN_ROOT}/scripts/md-lint.mjs\"",
+              "timeout": 10
+            }
+          ]
+        }
+      ],
+      "SessionStart": [
+        {
+          "hooks": [
+            {
+              "type": "command",
+              "command": "node \"${PLUGIN_ROOT}/scripts/session-brief.mjs\"",
+              "timeout": 15
+            }
+          ]
+        }
+      ],
+      "Stop": [
+        {
+          "hooks": [
+            {
+              "type": "command",
+              "command": "node \"${PLUGIN_ROOT}/scripts/stop-loop.mjs\"",
+              "timeout": 15
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "interface": {
+    "displayName": "caseworker",
+    "shortDescription": "Issue-driven development harness for Claude Code with pluggable trackers (local ",
+    "longDescription": "Issue-driven development harness for Claude Code with pluggable trackers (local files by default, Jira, GitHub): issue router, saved workflows, fail-closed commit/push gate hook (Bash and PowerShell), bookkeeping scripts.",
+    "developerName": "bigbulgogiburger",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ]
+  }
+}

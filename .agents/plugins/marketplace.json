@@ -1,0 +1,19 @@
+{
+  "name": "caseworker-codex",
+  "interface": {
+    "displayName": "caseworker (Codex)"
+  },
+  "plugins": [
+    {
+      "name": "caseworker",
+      "source": {
+        "source": "local",
+        "path": "./plugins/caseworker"
+      },
+      "policy": {
+        "installation": "AVAILABLE"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

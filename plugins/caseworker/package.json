@@ -1,0 +1,17 @@
+{
+  "name": "caseworker",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "Issue-driven development harness for Claude Code with pluggable trackers (local files by default, Jira, GitHub): issue router, saved workflows, fail-closed commit/push gate hook (Bash and PowerShell), bookkeeping scripts.",
+  "scripts": {
+    "test": "node --test scripts/__tests__/*.test.mjs",
+    "hygiene": "node scripts/hygiene.mjs",
+    "validate": "claude plugin validate . --strict",
+    "check": "npm run hygiene && npm run validate && npm test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "license": "MIT"
+}
