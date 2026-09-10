@@ -22,7 +22,7 @@ function makeRepo({ protectedGlobs = null } = {}) {
   g(dir, 'init', '-q', '-b', 'main');
   g(dir, 'config', 'user.email', 'test@example.com');
   g(dir, 'config', 'user.name', 'test');
-  for (const d of ['backend', 'frontend', '.claude', 'tests/heldout']) mkdirSync(join(dir, d), { recursive: true });
+  for (const d of ['backend', 'frontend', '.codex', 'tests/heldout']) mkdirSync(join(dir, d), { recursive: true });
   writeFileSync(join(dir, 'backend/App.java'), 'class App {}\n');
   writeFileSync(join(dir, 'frontend/app.js'), 'export default 1\n');
   writeFileSync(join(dir, 'tests/heldout/probe.txt'), 'x\n');

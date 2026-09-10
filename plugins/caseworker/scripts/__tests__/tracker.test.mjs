@@ -34,7 +34,7 @@ function makeRepo(cfg) {
   g(dir, 'config', 'user.email', 'test@example.com');
   g(dir, 'config', 'user.name', 'test');
   g(dir, 'config', 'core.autocrlf', 'false');
-  for (const d of ['backend', '.claude']) mkdirSync(join(dir, d), { recursive: true });
+  for (const d of ['backend', '.codex']) mkdirSync(join(dir, d), { recursive: true });
   writeFileSync(join(dir, 'backend/App.java'), 'class App {}\n');
   writeFileSync(join(dir, '.gitignore'), '.codex/runtime/\n');
   writeFileSync(join(dir, '.codex/harness.json'), JSON.stringify(cfg, null, 2) + '\n');

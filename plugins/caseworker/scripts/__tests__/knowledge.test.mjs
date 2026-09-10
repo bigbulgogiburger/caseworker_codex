@@ -22,7 +22,7 @@ function makeRepo(cfgPatch = {}) {
   g(dir, 'init', '-q', '-b', 'main');
   g(dir, 'config', 'user.email', 'test@example.com');
   g(dir, 'config', 'user.name', 'test');
-  for (const d of ['backend', '.claude', 'docs']) mkdirSync(join(dir, d), { recursive: true });
+  for (const d of ['backend', '.codex', 'docs']) mkdirSync(join(dir, d), { recursive: true });
   writeFileSync(join(dir, 'backend/App.java'), 'class App {}\n');
   const cfg = { ...JSON.parse(readFileSync(join(HERE, 'fixtures/harness.json'), 'utf8')), ...cfgPatch };
   writeFileSync(join(dir, '.codex/harness.json'), JSON.stringify(cfg, null, 2) + '\n');

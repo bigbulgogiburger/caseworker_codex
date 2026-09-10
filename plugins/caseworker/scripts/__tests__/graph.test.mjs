@@ -21,7 +21,7 @@ const CFG = {
 function makeRepo() {
   const dir = mkdtempSync(join(tmpdir(), 'cw-graph-'));
   g(dir, 'init', '-q', '-b', 'main'); g(dir, 'config', 'user.email', 't@e.com'); g(dir, 'config', 'user.name', 't'); g(dir, 'config', 'core.autocrlf', 'false');
-  mkdirSync(join(dir, 'backend'), { recursive: true }); mkdirSync(join(dir, '.claude'), { recursive: true }); mkdirSync(join(dir, 'docs'), { recursive: true });
+  mkdirSync(join(dir, 'backend'), { recursive: true }); mkdirSync(join(dir, '.codex'), { recursive: true }); mkdirSync(join(dir, 'docs'), { recursive: true });
   writeFileSync(join(dir, 'backend/App.java'), 'class App {}\n');
   writeFileSync(join(dir, '.gitignore'), '.codex/runtime/\n');
   writeFileSync(join(dir, '.codex/harness.json'), JSON.stringify(CFG, null, 2) + '\n');

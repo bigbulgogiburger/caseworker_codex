@@ -40,12 +40,12 @@ export function buildBrief(cwd) {
   const parsed = branch ? parseBranch(branch, cfg) : null;
   if (!parsed) {
     L.push(branch === cfg.default_branch
-      ? `기본 브랜치다 — 이슈를 잡으려면 /caseworker:issue <KEY> (${cfg.branch_template} 브랜치를 새로 만든다)`
-      : `이슈 브랜치 패턴 밖 — 채택하려면 /caseworker:issue <KEY> --adopt`);
+      ? `기본 브랜치다 — 이슈를 잡으려면 $caseworker:issue <KEY> (${cfg.branch_template} 브랜치를 새로 만든다)`
+      : `이슈 브랜치 패턴 밖 — 채택하려면 $caseworker:issue <KEY> --adopt`);
   } else {
     const sPath = statePath(cfg, root, parsed.slug ?? branchSlug(branch));
     const st = readState(sPath);
-    if (!st) L.push(`키 ${parsed.keys.join(', ')} · 상태 JSON 없음 → /caseworker:issue ${parsed.keys[0]} 로 start`);
+    if (!st) L.push(`키 ${parsed.keys.join(', ')} · 상태 JSON 없음 → $caseworker:issue ${parsed.keys[0]} 로 start`);
     else {
       // 신선도는 훅과 같은 축(인덱스 지문 + treeAccepted) — HEAD 트리와 비교하면 항상 "낡음" 으로 보였다
       let fresh = () => false;

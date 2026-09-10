@@ -1,7 +1,9 @@
 ---
 name: grilling
-description: Grill the user relentlessly about a plan or design until reaching shared understanding. Use when the user wants to stress-test a plan before building, get grilled on their design, or uses any 'grill' trigger phrases ('grill me', '그릴해줘', '계획 점검', '설계 털어줘'). 질문은 한 번에 하나, 선택형은 AskUserQuestion 선택지 UI로 렌더링한다.
+description: Grill the user relentlessly about a plan or design until reaching shared understanding. Use when the user wants to stress-test a plan before building, get grilled on their design, or uses any 'grill' trigger phrases ('grill me', '그릴해줘', '계획 점검', '설계 털어줘'). 질문은 한 번에 하나, 선택형은 request_user_input 선택지 UI로 렌더링한다.
 ---
+> Codex 질문: `request_user_input`은 해당 도구가 제공되는 Plan 모드에서만 사용한다. 현재 도구 스키마를 따른다. `preview` 필드는 없다. 다른 모드에서는 제공되는 비동기 질문 도구 또는 짧은 일반 질문을 사용한다. 승인과 선호도 질문을 구분하고, 무응답을 승인으로 간주하지 않는다.
+
 
 # grilling — 계획을 확정할 때까지 묻는 인터뷰
 
@@ -15,19 +17,19 @@ description: Grill the user relentlessly about a plan or design until reaching s
 
 ## 질문 형식 — 이 스킬의 첫 번째 심장
 
-**선택지를 만들 수 있는 질문은 반드시 AskUserQuestion 툴로 묻는다.** 평문으로 물으면 사용자가 긴 답을 타이핑해야 하지만, 이 툴은 화면에 클릭 가능한 선택지로 렌더링되고 "Other"로 자유 입력도 열려 있다.
+**선택지를 만들 수 있는 질문은 현재 모드에서 제공되는 질문 도구로 묻는다.** 평문으로 물으면 사용자가 긴 답을 타이핑해야 하지만, 이 툴은 화면에 클릭 가능한 선택지로 렌더링되고 "Other"로 자유 입력도 열려 있다.
 
 - **한 호출에 질문 1개만.** 여러 질문을 묶으면 어리둥절해진다.
 - **툴 호출이 곧 질문이다.** 질문이나 선택지를 평문으로 쓴 뒤 툴로 같은 것을 또 묻지 않는다 — 두 번 읽게 만드는 벽 텍스트가 된다. 평문에는 배경 브리핑(아래 난이도 절)만 남긴다.
 - 선택지는 2~4개. **내 권장안을 첫 번째에 두고 라벨 끝에 "(권장)"** 을 붙인다.
 - 각 선택지의 description 은 "이걸 고르면 화면/데이터/일정이 어떻게 되는지" **결과 중심**으로 쓴다. 구현 방식 나열이 아니다.
-- **화면 배치·흐름·데이터 모양이 갈리는 질문에서는 preview 가 기본값이다.** 말로 설명한 구조 차이는 머리에 그려지지 않는다 — 각 option 의 preview 필드에 그 안을 골랐을 때 실제로 보게 될 것(가짜 데이터 몇 줄이 든 표, 화면 목업, 목록 예시)을 담아 눈으로 비교하게 한다. 예:
+- **화면 배치·흐름·데이터 모양이 갈리는 질문에서는 preview 가 기본값이다.** 말로 설명한 구조 차이는 머리에 그려지지 않는다 — 질문 전에 텍스트 표 또는 시각화로 그 안을 골랐을 때 실제로 보게 될 것(가짜 데이터 몇 줄이 든 표, 화면 목업, 목록 예시)을 담아 눈으로 비교하게 한다. 예:
 
   ```json
   {
     "label": "한 목록으로 통합 (권장)",
     "description": "수리·교환이 시간순 한 줄로 이어져 보입니다.",
-    "preview": "날짜    | 종류 | 내용\n03-02  | 수리 | 세탁기 소음\n03-09  | 수리 | 같은 건 재방문\n03-15  | 교환 | 신품 교환 완료"
+    "example_to_show_before_question": "날짜    | 종류 | 내용\n03-02  | 수리 | 세탁기 소음\n03-09  | 수리 | 같은 건 재방문\n03-15  | 교환 | 신품 교환 완료"
   }
   ```
 
@@ -46,4 +48,4 @@ description: Grill the user relentlessly about a plan or design until reaching s
 ## 진행 관리
 
 - 5문항 내외마다 한 번, 지금까지 확정된 것을 쉬운 말로 3~5줄 요약하고 이어간다. 사용자가 어디까지 왔는지 놓치지 않게 하기 위해서다.
-- **끝날 때**: 확정된 결정 전체를 정리해 보여주고, AskUserQuestion 으로 승인을 받는다(진행 (권장) / 수정할 것 있음 / 처음부터). 승인 전에는 계획을 실행하지 않는다.
+- **끝날 때**: 확정된 결정 전체를 정리해 보여주고, 짧은 일반 질문으로 명시적 승인을 받는다(진행 (권장) / 수정할 것 있음 / 처음부터). 승인 전에는 계획을 실행하지 않는다.

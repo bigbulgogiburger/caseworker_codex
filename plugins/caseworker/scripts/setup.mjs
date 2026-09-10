@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // setup.mjs — setup 스킬의 결정론 부분. 인터뷰(모르는 값 묻기)와 보고 문장은 스킬이, 측정·쓰기는 여기가 한다.
 //   detect  : 스택 감지 → harness.json 제안 + 모르는 값 목록
-//   write   : harness.json 멱등 쓰기(스키마 검증 · 절대 경로/자격증명 거부) + .codex/config.toml 병합 + .gitignore 보강
+//   write   : harness.json 멱등 쓰기(스키마 검증 · 절대 경로/자격증명 거부) + .codex/settings.json 병합 + .gitignore 보강
 //   check   : 전제 체크리스트(node·git·bash·codex·harness.json·게이트 dry-run) — 미충족 항목에 fail-closed 단계 표시
 //   upgrade : v2 잔재 감지·이관(기본 dry-run, --apply 로 실행 — 삭제가 아니라 archive 로 이동)
 //   inject  : 위반 주입 — 프로젝트를 임시 clone 해 게이트가 **실제로 막는지** 실측(존재 ≠ 실효)
@@ -52,7 +52,7 @@ function run(file, args, { cwd: d, input } = {}) {
 
 // ================================================================= detect
 
-const SKIP_DIRS = new Set(['.git', '.claude', '.idea', '.vscode', 'node_modules', 'build', 'dist', 'out', 'target', '.gradle', '.venv', 'venv', '__pycache__', 'vendor', 'coverage', 'tmp']);
+const SKIP_DIRS = new Set(['.git', '.codex', '.idea', '.vscode', 'node_modules', 'build', 'dist', 'out', 'target', '.gradle', '.venv', 'venv', '__pycache__', 'vendor', 'coverage', 'tmp']);
 
 function packageManager(dir) {
   if (existsSync(join(dir, 'pnpm-lock.yaml'))) return 'pnpm';
@@ -278,9 +278,14 @@ function validateConfig(cfg) {
 }
 
 function mergeSettings(root, { marketplace, plugin, repo }) {
-  const file = join(root, '.codex/config.toml');
+  // Codex installs plugins through its CLI; Claude's JSON settings are not TOML.
+  if (CONFIG_REL.startsWith('.codex/')) {
+    return { path: null, changed: false, added: [], error: null,
+      instructions: `codex plugin marketplace add ${repo}_codex; codex plugin add ${plugin}@${marketplace}-codex; then review and trust the plugin hooks with /hooks` };
+  }
+  const file = join(root, '.codex/settings.json');
   const cur = readJson(file);
-  if (!cur.ok && !cur.missing) return { path: '.codex/config.toml', changed: false, added: [], error: `settings.json 을 읽을 수 없다: ${cur.error}` };
+  if (!cur.ok && !cur.missing) return { path: '.codex/settings.json', changed: false, added: [], error: `settings.json 을 읽을 수 없다: ${cur.error}` };
   const settings = cur.value ?? {};
   const added = [];
   const before = JSON.stringify(settings);
@@ -298,10 +303,10 @@ function mergeSettings(root, { marketplace, plugin, repo }) {
   }
   const changed = JSON.stringify(settings) !== before;
   if (changed) writeJson(file, settings);
-  return { path: '.codex/config.toml', changed, added, error: null };
+  return { path: '.codex/settings.json', changed, added, error: null };
 }
 
-const GITIGNORE_LINES = ['.claude/harness.env.local', '.codex/runtime/', '.loop/session.local.json'];
+const GITIGNORE_LINES = ['.codex/harness.env.local', '.codex/runtime/', '.loop/session.local.json'];
 
 function ensureGitignore(root) {
   const file = join(root, '.gitignore');
@@ -331,7 +336,7 @@ function cmdWrite() {
       config: { path: norm(join(cwd, CONFIG_REL)), status: 'rejected' },
       errors,
       forbidden,
-      hint: forbidden.length ? '절대 경로·자격증명은 harness.json 에 두지 않는다 — stacks.<name>.env_file 이 가리키는 gitignore 파일(.claude/harness.env.local)로 옮길 것' : null,
+      hint: forbidden.length ? '절대 경로·자격증명은 harness.json 에 두지 않는다 — stacks.<name>.env_file 이 가리키는 gitignore 파일(.codex/harness.env.local)로 옮길 것' : null,
     };
     if (json) console.log(JSON.stringify(payload, null, 2));
     else {
@@ -371,7 +376,7 @@ function cmdWrite() {
   const payload = { config: { path: norm(file), status }, diff, settings, gitignore };
   emit(payload, settings.error ? 1 : 0, [
     `[setup] harness.json ${status}`,
-    `[setup] settings.json ${settings.error ?? (settings.changed ? `병합: ${settings.added.join(', ')}` : '변경 없음')}`,
+    `[setup] ${settings.instructions ?? `settings.json ${settings.error ?? (settings.changed ? `병합: ${settings.added.join(', ')}` : '변경 없음')}`}`,
     `[setup] .gitignore ${gitignore.added.length ? `추가: ${gitignore.added.join(', ')}` : '변경 없음'}`,
   ]);
 }
@@ -402,7 +407,7 @@ function makeProbeClone(root) {
   // harness.json 은 아직 커밋 전일 수 있다 — 원본의 것을 그대로 복사해 같은 설정으로 판정한다.
   const srcCfg = join(root, CONFIG_REL);
   if (existsSync(srcCfg)) {
-    mkdirSync(join(dst, '.claude'), { recursive: true });
+    mkdirSync(join(dst, '.codex'), { recursive: true });
     copyFileSync(srcCfg, join(dst, CONFIG_REL));
   }
   return { ok: true, dir: dst };
@@ -536,7 +541,7 @@ function cmdUpgrade() {
   const removedHooks = [];
   const warnings = [];
 
-  for (const rel of ['.codex/config.toml', '.claude/settings.local.json']) {
+  for (const rel of ['.codex/settings.json', '.codex/settings.local.json']) {
     const file = join(cwd, rel);
     if (!existsSync(file)) continue;
     const cur = readJson(file);
@@ -560,21 +565,21 @@ function cmdUpgrade() {
       moved.push(moveToArchive(cwd, rel, apply));
     }
   }
-  const scriptsDir = join(cwd, '.claude/scripts');
+  const scriptsDir = join(cwd, '.codex/scripts');
   if (existsSync(scriptsDir)) {
     for (const name of readdirSync(scriptsDir)) {
       if (!/-execute\.py$/.test(name)) continue;
-      const rel = `.claude/scripts/${name}`;
+      const rel = `.codex/scripts/${name}`;
       found.push(rel);
       moved.push(moveToArchive(cwd, rel, apply));
     }
   }
-  const hooksDir = join(cwd, '.claude/hooks');
+  const hooksDir = join(cwd, '.codex/hooks');
   if (existsSync(hooksDir)) {
     for (const name of readdirSync(hooksDir)) {
       const stem = name.replace(/\.[^.]*$/, '');
       if (!V2_HOOK_MARKERS.includes(stem)) continue;
-      const rel = `.claude/hooks/${name}`;
+      const rel = `.codex/hooks/${name}`;
       found.push(rel);
       moved.push(moveToArchive(cwd, rel, apply));
     }

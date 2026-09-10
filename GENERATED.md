@@ -21,4 +21,7 @@ codex plugin marketplace add bigbulgogiburger/caseworker_codex
 codex plugin add caseworker@caseworker-codex
 ```
 
-생성 시각: 2026-09-10T06:44:56.425Z
+설치 후 Codex CLI의 `/hooks`에서 플러그인 훅 정의를 검토하고 신뢰해야 한다. 설치만으로 훅이 발화하지 않는다.
+검증 방법과 포팅 범위: [Codex 안내](plugins/caseworker/docs/codex-validation.md).
+
+생성 시각: 2026-09-10T06:58:13.389Z

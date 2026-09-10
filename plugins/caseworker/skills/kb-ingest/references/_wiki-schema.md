@@ -138,7 +138,7 @@ ISSUE_PREFIX 는 첫 호출 시 프로젝트의 트래커 이슈 KEY prefix 로�
 
 ## 3. dev-guide YAML frontmatter 표준
 
-신규 dev-guide 는 다음 frontmatter 권장 (plan 단계 — `/caseworker:issue` 가 자동 삽입):
+신규 dev-guide 는 다음 frontmatter 권장 (plan 단계 — `$caseworker:issue` 가 자동 삽입):
 
 ```yaml
 ---
@@ -228,7 +228,7 @@ KEY 없는 kb 소스는 KEY 자리에 소스 경로 slug (phase 자리에 `kb`).
 ```markdown
 # <Project> — 문서 인덱스 (LLM-maintained)
 
-> 자동 갱신: `/caseworker:issue` 의 wiki 단계 호출 시. 마지막 갱신: 2026-05-14 14:32 KST.
+> 자동 갱신: `$caseworker:issue` 의 wiki 단계 호출 시. 마지막 갱신: 2026-05-14 14:32 KST.
 > 카테고리/정책: `INDEX-SCHEMA.md`. lint 보고서: `wiki-lint` 호출.
 
 <!-- ingest-managed:begin file=INDEX.md -->
@@ -353,7 +353,7 @@ PR diff 가 항상 5 파일 이내 보장.
 | "이 회의록/클라 회신/세션 기록 ingest" (KEY 없는 소스) | → **kb-ingest 스킬** 영역 (issue 스킬의 wiki 단계가 받았으면 kb-ingest 로 안내) |
 | "전체 문서를 wiki 로 ingest" / "wiki 구조 만들어줘" / synthesis 설정 있는데 `wiki/` 부재 | bootstrap-wiki (§ 17) |
 
-`/caseworker:issue` 라우터가 wiki 단계를 호출할 때는 forecast/closure 모드를 넘긴다 (예: wiki 단계(`scripts/wiki-row.mjs`)를 "ABC-247 forecast 모드"로 실행).
+`$caseworker:issue` 라우터가 wiki 단계를 호출할 때는 forecast/closure 모드를 넘긴다 (예: wiki 단계(`scripts/wiki-row.mjs`)를 "ABC-247 forecast 모드"로 실행).
 
 **유일한 명시 플래그**: `--subtasks` — `_subtasks-convention.md` 와 일관성. 자연어로는 부모/슬라이스 mechanical 처리 모호.
 
@@ -404,7 +404,7 @@ CLAUDE.md grep "docs/INDEX.md"
 
 ## 16. Synthesis Layer — `wiki/` 도메인 페이지
 
-> **왜 필요한가**: catalog(INDEX/LOG)만으로는 "이 업무가 지금 어떤 규칙으로 돌아가나"를 어디서도 답할 수 없다. 지식이 dev-guide(이슈 단면)·ADR(결정 원문)·CHANGELOG(세션 서사)에 **시간순으로** 흩어져 있어, 질문마다 여러 문서를 시간순 재구성해야 한다. synthesis 층은 그 재구성을 ingest 시점(build-time)에 1회 수행해 **업무 도메인별 현재-상태 종합**으로 고정한다. reference 문서(`.claude/docs/reference/`)와의 경계: reference 는 "코드를 어떻게 만지나"(코드베이스 관점), wiki 는 "업무가 어떤 규칙로 돌아가나"(도메인 관점) — 같은 사실이 양쪽에 다른 관점으로 실릴 수 있고 그건 중복이 아니다.
+> **왜 필요한가**: catalog(INDEX/LOG)만으로는 "이 업무가 지금 어떤 규칙으로 돌아가나"를 어디서도 답할 수 없다. 지식이 dev-guide(이슈 단면)·ADR(결정 원문)·CHANGELOG(세션 서사)에 **시간순으로** 흩어져 있어, 질문마다 여러 문서를 시간순 재구성해야 한다. synthesis 층은 그 재구성을 ingest 시점(build-time)에 1회 수행해 **업무 도메인별 현재-상태 종합**으로 고정한다. reference 문서(`.codex/docs/reference/`)와의 경계: reference 는 "코드를 어떻게 만지나"(코드베이스 관점), wiki 는 "업무가 어떤 규칙로 돌아가나"(도메인 관점) — 같은 사실이 양쪽에 다른 관점으로 실릴 수 있고 그건 중복이 아니다.
 
 **활성 조건**: 프로젝트 `INDEX-SCHEMA.md` 에 `synthesis:` 키 존재. 부재 시 wiki 단계(scripts/wiki-row.mjs)·kb-ingest 는 synthesis 단계를 통째로 건너뛰고 (catalog-only), wiki-lint 는 L16/L17 을 검사 제외한다. 기존 catalog-only 프로젝트 무영향.
 

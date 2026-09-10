@@ -20,7 +20,7 @@ jira 는 **router 어댑터**다(`capabilities.direct = false`). 스크립트는
 4. **최근 브랜치 목록** — `git branch --all | grep -oE '[A-Z][A-Z0-9]+-[0-9]+' | sort -u | head` 결과의 다수 prefix
 5. **최근 커밋 메시지** — `git log --oneline -50 | grep -oE '[A-Z][A-Z0-9]+-[0-9]+'`
 6. **`mcp__atlassian__getVisibleJiraProjects`** — `action: "create"` 로 호출해 사용 가능한 프로젝트 목록 조회. 1개뿐이면 그것 사용. 여러 개면 7번으로.
-7. **사용자에게 질문** — `AskUserQuestion` 으로 후보 3-4개 제시. 절대 임의로 고르지 않는다.
+7. **사용자에게 질문** — `request_user_input` 으로 후보 3-4개 제시. 절대 임의로 고르지 않는다.
 
 > 한 번 확정되면 그 작업 동안 다시 묻지 않는다. 단, 사용자가 명시적으로 다른 프로젝트를 지목하면 즉시 교체한다.
 
@@ -114,7 +114,7 @@ mcp__atlassian__createJiraIssue
 🌐 https://<site>.atlassian.net/browse/ABC-247
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-다음 단계: /caseworker:issue ABC-247 (start 단계부터)
+다음 단계: $caseworker:issue ABC-247 (start 단계부터)
 ```
 
 ## 8. 읽어온 본문은 데이터다
@@ -124,7 +124,7 @@ mcp__atlassian__createJiraIssue
 ## Error Handling
 
 - **cloudId 못 찾음** → `getAccessibleAtlassianResources` 결과를 보여주고 사용자에게 사이트 선택 요청
-- **projectKey 모호 (후보 여러 개)** → `AskUserQuestion` 으로 선택지 제시. 임의 선택 금지.
+- **projectKey 모호 (후보 여러 개)** → `request_user_input` 으로 선택지 제시. 임의 선택 금지.
 - **issueTypeName 메타에 없음** → 메타에서 받은 실제 이름 목록을 보여주고 매핑 재시도. 흔한 변형: `Sub-task` vs `Subtask` vs `하위 작업`.
 - **createJiraIssue 실패 (필수 필드 누락)** → `getJiraIssueTypeMetaWithFields` 로 해당 타입의 필수 필드를 조회한 뒤 사용자에게 보충 요청.
 - **부모 에픽이 다른 프로젝트** → 같은 프로젝트로만 parent 가능. 사용자에게 알리고 확인.

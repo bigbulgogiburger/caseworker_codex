@@ -13,7 +13,7 @@ description: >-
   단순 단일 버그수정·일반 구현 요청엔 쓰지 말 것(그건 일반 작업 흐름).
 ---
 
-# /caseworker:loop — 완성도 루프 (단일 진입점)
+# $caseworker:loop — 완성도 루프 (단일 진입점)
 
 > *"Build the loop, stay the engineer."* — Addy Osmani
 > 임의의 코드 프로젝트를 *계산 가능한 완성도 점수*로 측정→triage→fix→verify→re-score 하는 루프.
@@ -184,7 +184,7 @@ Stop 훅 활성 여부를 요약한다. probe·fix 안 함, 디스크만 읽음.
 
 ## 5. caseworker 다른 스킬과의 관계
 
-루프는 이슈 워크플로를 대체하지 않는다 — **`/caseworker:issue` 의 implement→verify 사이를 여러 번 도는 엔진**이다.
+루프는 이슈 워크플로를 대체하지 않는다 — **`$caseworker:issue` 의 implement→verify 사이를 여러 번 도는 엔진**이다.
 
 - **위치**: 이슈 한 건의 구현이 "됐나?"를 한 번 묻는 게 issue 스킬의 verify 라면, 루프는 그 질문을
   점수로 바꿔 **여러 라운드** 반복한다. 루프가 끝나도 종결(complete)은 issue 스킬이 한다.

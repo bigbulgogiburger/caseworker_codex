@@ -35,7 +35,7 @@
 - 문서가 가리키는 모듈이 실제로 존재하는지 / 어디에 있는지 (라벨 정확도)
 - 새로 만들어야 하는지 / 기존 코드에 추가하는지 (본문에 짧게 반영)
 
-**여기서도 깊게 파지 않는다.** 후속 grill 문답·plan 단계(`/caseworker:issue`)의 몫.
+**여기서도 깊게 파지 않는다.** 후속 grill 문답·plan 단계(`$caseworker:issue`)의 몫.
 
 ### 3. 스택 감지
 
@@ -212,7 +212,7 @@ node "<P>/scripts/cases.mjs" link HX-a3f8.1 HX-a3f8.3 blocks
 📁 .caseworker/cases/  (커밋 대상 — 커밋은 사람이 판단)
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-다음 단계: 작업할 이슈를 골라 /caseworker:issue <KEY>
+다음 단계: 작업할 이슈를 골라 $caseworker:issue <KEY>
 ```
 
 ## 실패 처리

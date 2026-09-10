@@ -9,11 +9,13 @@ description: >-
   붙여줘", "게이트 설정해줘", "harness.json 만들어줘", "트래커 바꿔줘", "v2 에서
   올려줘", "jira-harness 에서 옮겨줘", "업그레이드 해줘", "harness 점검",
   "harness check" 라고 하면 **반드시** 이 스킬을 쓴다.
-  `.codex/harness.json` 이 없어 `/caseworker:issue` 가 `NO_HARNESS` 를 보고할
+  `.codex/harness.json` 이 없어 `$caseworker:issue` 가 `NO_HARNESS` 를 보고할
   때도 이 스킬로 보낸다.
 ---
+> Codex 질문: `request_user_input`은 해당 도구가 제공되는 Plan 모드에서만 사용한다. 현재 도구 스키마를 따른다. `preview` 필드는 없다. 다른 모드에서는 제공되는 비동기 질문 도구 또는 짧은 일반 질문을 사용한다. 승인과 선호도 질문을 구분하고, 무응답을 승인으로 간주하지 않는다.
 
-# /caseworker:setup — 설치·점검·업그레이드
+
+# $caseworker:setup — 설치·점검·업그레이드
 
 `<P>` = 플러그인 루트 절대 경로. 이 스킬이 로드될 때 표시되는 `Base directory for this skill` 의 **두 단계 위**다(`skills/setup` 의 부모의 부모). 아래 모든 명령의 `<P>` 를 그 경로로 치환하고, 프로젝트 루트에서 실행한다.
 
@@ -26,7 +28,7 @@ description: >-
 
 ## Usage
 
-`/caseworker:setup [--upgrade] [--mode auto|suggest|off]`
+`$caseworker:setup [--upgrade] [--mode auto|suggest|off]`
 
 - 인자 없음: 신규 설치 또는 기존 설정의 멱등 점검
 - `--upgrade`: v2 잔재 감지·이관(§6)으로 바로 진입. jira-harness(v3)에서 오는 경로는 §6b — 스크립트 명령이 아니라 손으로 3줄이다
@@ -43,7 +45,7 @@ node "<P>/scripts/setup.mjs" detect --cwd <프로젝트 루트> --json
 - `unknown[]`: 코드로 못 정한 값 이름 배열 — **이 목록만** 인터뷰한다
 - `existing`: 기존 harness.json 이 있으면 그 내용(diff 비교용)
 
-`unknown[]` 에 있는 값만 AskUserQuestion 으로 **한 번에 하나씩** 확정한다:
+`unknown[]` 에 있는 값만 request_user_input 으로 **한 번에 하나씩** 확정한다:
 
 | 값 | 언제 묻나 |
 |----|----------|
@@ -55,7 +57,7 @@ node "<P>/scripts/setup.mjs" detect --cwd <프로젝트 루트> --json
 
 ## 1b. 트래커 선택
 
-`detect` 의 `suggested` 는 항상 `tracker: "local"` 로 나온다 — **감지가 아니라 기본값**이다. 트래커는 코드로 판정할 수 없으니(같은 저장소를 Jira 로 굴리는 팀과 파일로 굴리는 팀이 겉보기에 같다) **AskUserQuestion 으로 한 번 묻는다.** 묻지 않고 고르지 않는다.
+`detect` 의 `suggested` 는 항상 `tracker: "local"` 로 나온다 — **감지가 아니라 기본값**이다. 트래커는 코드로 판정할 수 없으니(같은 저장소를 Jira 로 굴리는 팀과 파일로 굴리는 팀이 겉보기에 같다) **request_user_input 으로 한 번 묻는다.** 묻지 않고 고르지 않는다.
 
 | 후보 | `tracker` | 성격 | 언제 |
 |------|-----------|------|------|
@@ -86,7 +88,7 @@ node "<P>/scripts/setup.mjs" write --config <json 파일|-> [--marketplace <name
 ```
 
 - `existing` 이 있었으면 먼저 diff 를 보여주고 승인 받은 뒤 `--force` 로 재호출한다(승인 없이 덮어쓰지 않는다)
-- 이 한 호출이 `.codex/config.toml` 의 `extraKnownMarketplaces`/`enabledPlugins` 병합과 `.gitignore` 항목(런타임·env_file)까지 함께 처리한다 — 다른 파일을 손으로 건드리지 않는다
+- 이 한 호출이 `.codex/settings.json` 의 `extraKnownMarketplaces`/`enabledPlugins` 병합과 `.gitignore` 항목(런타임·env_file)까지 함께 처리한다 — 다른 파일을 손으로 건드리지 않는다
 - 스키마상 `version` 은 3(구 `jira` 블록 호환) 또는 4(`tracker`/`trackers`). **신규 설치는 4** 로 쓴다 — `detect` 의 `suggested` 가 이미 4다. 3 으로 남은 기존 설정은 §6b 를 볼 것
 
 ## 3. check — 전제 체크리스트
@@ -131,15 +133,15 @@ node "<P>/scripts/setup.mjs" inject --json
 
 1. **harness.json 은 그대로 둬도 동작한다.** `version: 3` + `jira` 블록만 있는 설정은 로더가 그대로 `jira` 트래커로 읽는다(`tracker` 가 없으면 `jira` 로 잡고, `jira` 블록을 `trackers.jira` 에 얹는다). **아무것도 안 고쳐도 된다.**
 2. 정리하고 싶으면 세 줄: `version` 을 `4` 로, `tracker: "jira"` 를 추가, `jira: {...}` 블록을 `trackers: { "jira": {...} }` 로 옮긴다(키 이름은 그대로 — `project`·`start_transition`·`done_transition`·`comment_lang`). 그러고 `setup.mjs check` 로 스키마 유효성만 다시 본다. 트래커 자체를 `local` 로 바꾸려는 것이면 §1b 로 돌아간다 — 키 체계가 달라지므로 `issue_prefix`·`branch_pattern`·`trackers.local.key_body` 를 함께 본다.
-3. **`.codex/config.toml` 의 `enabledPlugins` 에서 `jira-harness` 를 끄고 `caseworker` 를 켠다.** 둘을 같이 켜두면 **훅이 둘 다 발화한다** — 같은 `git commit` 을 두 개의 PreToolUse 훅이 각자 판정해 사유가 엇갈리거나 이중 차단된다. 하나만 켠다.
+3. **`.codex/settings.json` 의 `enabledPlugins` 에서 `jira-harness` 를 끄고 `caseworker` 를 켠다.** 둘을 같이 켜두면 **훅이 둘 다 발화한다** — 같은 `git commit` 을 두 개의 PreToolUse 훅이 각자 판정해 사유가 엇갈리거나 이중 차단된다. 하나만 켠다.
 
-상태 JSON·`runtime/` 은 **그대로 쓴다** — 경로(`.codex/runtime/issues/<slug>.json`)도 스키마도 같다. 옮기거나 지우지 않는다. 바뀌는 것은 훅·스킬 네임스페이스(`/jira-harness:issue` → `/caseworker:issue`)와 stderr 사유 줄의 태그(`[jira-harness]` → `[caseworker]`)뿐이다. 매핑표는 [references/upgrade.md](references/upgrade.md).
+상태 JSON·`runtime/` 은 **그대로 쓴다** — 경로(`.codex/runtime/issues/<slug>.json`)도 스키마도 같다. 옮기거나 지우지 않는다. 바뀌는 것은 훅·스킬 네임스페이스(`/jira-harness:issue` → `$caseworker:issue`)와 stderr 사유 줄의 태그(`[jira-harness]` → `[caseworker]`)뿐이다. 매핑표는 [references/upgrade.md](references/upgrade.md).
 
 > ⚠ 플러그인을 새로 켠 **같은 세션**은 훅도 `caseworker:<스킬>` 이름도 못 본다 — 새 세션에서 확인한다. 그 전까지는 §4 주입이 옛 플러그인의 훅을 재는 셈이니, 전환 직후의 초록을 caseworker 의 실효로 읽지 않는다.
 
 ## 7. 설치 보고 (1화면)
 
-스택 · 모드 · **트래커(§1b — 이름 + direct/router + 첫 이슈 만드는 법)** · 게이트 명령 · 체크리스트(§3) · 주입 결과(§4) · 헤드리스 확인 결과(§5) · 다음 명령(`/caseworker:issue <KEY>`) 을 한 화면에 정리한다.
+스택 · 모드 · **트래커(§1b — 이름 + direct/router + 첫 이슈 만드는 법)** · 게이트 명령 · 체크리스트(§3) · 주입 결과(§4) · 헤드리스 확인 결과(§5) · 다음 명령(`$caseworker:issue <KEY>`) 을 한 화면에 정리한다.
 
 `local` 트래커로 설치했으면 마지막 줄에 첫 이슈 만드는 법을 같이 준다 — 아직 KEY 가 하나도 없기 때문이다:
 
@@ -161,4 +163,4 @@ node "<P>/scripts/cases.mjs" list                  # 이슈 목록
 - harness.json 에 절대 경로·자격증명을 쓰지 않는다 — 머신별 값은 `stacks.<name>.env_file` 이 가리키는 gitignore 파일로.
 - 마켓플레이스·플러그인 이름·저장소는 사용자가 명시하지 않으면 묻는다 — 추측해 등록하지 않는다. **트래커·이슈 접두사도 같다**(§1b).
 - 트래커를 나중에 바꾸는 것은 `harness.json.tracker` 한 줄이지만, **이미 만든 브랜치·상태 JSON 의 키는 따라 바뀌지 않는다** — 키 체계가 다른 트래커로 옮기면 진행 중인 이슈는 마감한 뒤 갈아탄다.
-- `harness.json` 의 게이트 명령이 실제로 실패하면(스택 오탐 등) 이 스킬로 돌아와 `detect`→`write` 를 다시 돈다 — `/caseworker:issue` 는 그 값을 고치지 않는다.
+- `harness.json` 의 게이트 명령이 실제로 실패하면(스택 오탐 등) 이 스킬로 돌아와 `detect`→`write` 를 다시 돈다 — `$caseworker:issue` 는 그 값을 고치지 않는다.

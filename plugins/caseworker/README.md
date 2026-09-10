@@ -16,9 +16,9 @@ claude plugin install caseworker@bigbulgogiburger
 프로젝트에 붙이기:
 
 ```
-/caseworker:setup            # 스택 감지 → harness.json → 전제 점검 → 위반 주입으로 훅 실효 확인
-/caseworker:new "제목"        # 이슈 한 건 생성 (기본 트래커 local — 저장소 안 파일)
-/caseworker:issue HX-a3f8    # 이슈 한 건(또는 HX-a3f8,HX-b2c1) 진행
+$caseworker:setup            # 스택 감지 → harness.json → 전제 점검 → 위반 주입으로 훅 실효 확인
+$caseworker:new "제목"        # 이슈 한 건 생성 (기본 트래커 local — 저장소 안 파일)
+$caseworker:issue HX-a3f8    # 이슈 한 건(또는 HX-a3f8,HX-b2c1) 진행
 ```
 
 업데이트는 `claude plugin update caseworker` 후 Claude Code 재시작.
@@ -69,7 +69,7 @@ claude plugin install caseworker@bigbulgogiburger
 - `.codex/runtime/issues/<branch>.json` — 브랜치 단위 상태(단계·결정·레인·DoD·게이트·리뷰 기록). `.codex/runtime/` 은 gitignore 대상. complete 는 `.codex/runtime/memory-candidates/<slug>-<시각>.md` 에 결정·리뷰·소요를 한 장으로 남긴다 — 자동 메모리로의 승격은 사람이 한다.
 - `.loop/` — **완성도 루프를 켠 프로젝트만.** `loop.json`(설정)·`scorecard.md`(rubric)·`scorecard.json`·`checkpoint.json`(점수·판정 장부, 커밋 대상)과 `session.local.json`(Stop 훅 세션, gitignore).
 - `.caseworker/` — **local 트래커를 쓸 때만.** 이슈 본문·댓글·진행 로그·링크가 저장소 안 파일로 남습니다(gitignore 가 아니라 **커밋 대상**). 레이아웃은 [`trackers/local/README.md`](trackers/local/README.md).
-- `.codex/config.toml` — `extraKnownMarketplaces` / `enabledPlugins` (팀원 자동 안내).
+- `.codex/settings.json` — `extraKnownMarketplaces` / `enabledPlugins` (팀원 자동 안내).
 
 ## 게이트가 막는 이유(사유 코드)
 
@@ -81,11 +81,11 @@ claude plugin install caseworker@bigbulgogiburger
 
 caseworker 는 jira-harness 3.2.0 을 흡수한 것입니다. Jira 는 이제 고정 축이 아니라 어댑터 하나입니다.
 
-**jira-harness 는 caseworker 로 대체됩니다(deprecated).** 기능 추가는 caseworker 에만 이뤄지고, jira-harness 는 보안 수정만 받습니다. 이관 절차는 `/caseworker:setup` §6b(설정 무변경 이관 · 두 플러그인 동시 활성 금지).
+**jira-harness 는 caseworker 로 대체됩니다(deprecated).** 기능 추가는 caseworker 에만 이뤄지고, jira-harness 는 보안 수정만 받습니다. 이관 절차는 `$caseworker:setup` §6b(설정 무변경 이관 · 두 플러그인 동시 활성 금지).
 
 - **v3 `harness.json` 은 무변경으로 동작합니다.** `version: 3` + `jira` 블록만 있는 설정은 그대로 읽혀 `jira` 트래커로 해석됩니다(`tracker` 를 명시하지 않았고 `jira` 블록이 있으면 트래커는 `jira`). `start_transition` · `done_transition` · `comment_lang` 값도 그대로 쓰입니다. local 로 옮기고 싶을 때만 `"version": 4`, `"tracker": "local"` 로 바꾸면 됩니다.
 - **두 플러그인을 동시에 켜지 마세요.** 둘 다 PreToolUse 훅을 등록하므로 `git commit` 한 번에 훅이 두 번 발화합니다(사유 코드가 뒤섞이고, 한쪽 판정이 다른 쪽을 가립니다). caseworker 를 설치했으면 **jira-harness 는 끕니다**.
-- **상태 JSON 은 그대로입니다.** `.codex/runtime/issues/<branch>.json` 의 스키마·경로가 같아 진행 중인 브랜치를 그대로 이어받습니다. 로그 접두는 `[jira-harness]` → `[caseworker]`, 스킬 네임스페이스는 `/jira-harness:*` → `/caseworker:*`, 환경변수 접두는 `CASEWORKER_` 입니다.
+- **상태 JSON 은 그대로입니다.** `.codex/runtime/issues/<branch>.json` 의 스키마·경로가 같아 진행 중인 브랜치를 그대로 이어받습니다. 로그 접두는 `[jira-harness]` → `[caseworker]`, 스킬 네임스페이스는 `/jira-harness:*` → `$caseworker:*`, 환경변수 접두는 `CASEWORKER_` 입니다.
 
 ## Herdr 와 같이 쓰기(선택)
 
@@ -115,7 +115,7 @@ claude plugin validate . --strict
 
 ## 이전 버전
 
-v2 는 user-scope 스킬 17종 묶음([`claude_jira_harness`](https://github.com/bigbulgogiburger/claude_jira_harness))이었습니다. v3(jira-harness)는 그것을 플러그인 하나로 재구축한 것이고, caseworker 는 v3 에서 Jira 고정 축을 걷어내 트래커 어댑터로 바꾼 것입니다 — 스킬 체인 대신 라우터 1개 + 저장 워크플로, 모델이 쓰던 markdown 판정 대신 스크립트가 쓰는 상태 JSON, 훅은 `PASS` 문자열 grep 대신 git 트리 id 대조. 기존 프로젝트는 `/caseworker:setup --upgrade` 로 v2 잔재(훅 3종·runtime 파일·`HARNESS_MODE`)를 이관합니다.
+v2 는 user-scope 스킬 17종 묶음([`claude_jira_harness`](https://github.com/bigbulgogiburger/claude_jira_harness))이었습니다. v3(jira-harness)는 그것을 플러그인 하나로 재구축한 것이고, caseworker 는 v3 에서 Jira 고정 축을 걷어내 트래커 어댑터로 바꾼 것입니다 — 스킬 체인 대신 라우터 1개 + 저장 워크플로, 모델이 쓰던 markdown 판정 대신 스크립트가 쓰는 상태 JSON, 훅은 `PASS` 문자열 grep 대신 git 트리 id 대조. 기존 프로젝트는 `$caseworker:setup --upgrade` 로 v2 잔재(훅 3종·runtime 파일·`HARNESS_MODE`)를 이관합니다.
 
 ## 라이선스
 

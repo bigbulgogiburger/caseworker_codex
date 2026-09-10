@@ -72,7 +72,7 @@ async function ask(q) {
 function harnessOrExplain(cwd) {
   const proj = locateProject(cwd);
   if (!proj) { console.log(`[caseworker] git 저장소가 아닙니다 — ${cwd}`); return null; }
-  if (!proj.configPath) { console.log(`[caseworker] 이 저장소에는 .codex/harness.json 이 없습니다 — Claude Code 에서 /caseworker:setup 을 먼저 실행하세요 (${proj.toplevel})`); return null; }
+  if (!proj.configPath) { console.log(`[caseworker] 이 저장소에는 .codex/harness.json 이 없습니다 — Claude Code 에서 $caseworker:setup 을 먼저 실행하세요 (${proj.toplevel})`); return null; }
   return proj;
 }
 
@@ -105,11 +105,11 @@ async function main() {
       const proj = harnessOrExplain(cwd);
       if (!proj) return waitKey();
       const cfg = loadConfig(proj.configPath);
-      if (cfg.tracker !== 'local' && cfg.tracker !== 'github') { console.log(`[caseworker] 트래커 ${cfg.tracker} 는 라우터형이라 여기서 이슈를 만들 수 없습니다 — Claude Code 의 /caseworker:new 를 쓰세요`); return waitKey(); }
+      if (cfg.tracker !== 'local' && cfg.tracker !== 'github') { console.log(`[caseworker] 트래커 ${cfg.tracker} 는 라우터형이라 여기서 이슈를 만들 수 없습니다 — Claude Code 의 $caseworker:new 를 쓰세요`); return waitKey(); }
       const title = await ask('이슈 제목: ');
       if (!title) return;
       const r = run('cases.mjs', ['new', title, '--cwd', cwd], cwd);
-      if (r.status === 0) console.log('\n[caseworker] 생성됨 — Claude Code 에서 /caseworker:issue <KEY> 로 착수');
+      if (r.status === 0) console.log('\n[caseworker] 생성됨 — Claude Code 에서 $caseworker:issue <KEY> 로 착수');
       return waitKey();
     }
     case 'report': {

@@ -4,4 +4,4 @@ description: A relentless interview to sharpen a plan or design.
 disable-model-invocation: true
 ---
 
-Run a `/caseworker:grilling` session.
+Run a `$caseworker:grilling` session.

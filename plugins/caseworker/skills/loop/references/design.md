@@ -216,7 +216,7 @@ full 에서 active ≥ target × consecutive → STOP (done)
 
 ## 9. 이슈 워크플로와의 관계
 
-루프는 독립 도구가 아니라 `/caseworker:issue` 워크플로의 **implement→verify 구간을 여러 번 도는 엔진**이다.
+루프는 독립 도구가 아니라 `$caseworker:issue` 워크플로의 **implement→verify 구간을 여러 번 도는 엔진**이다.
 
 | 층 | 소유 | 상태 파일 |
 |----|------|----------|
