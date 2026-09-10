@@ -1,3 +1,7 @@
+> ⚠ 이 문서는 **원본(Claude Code 플러그인)의 README** 다. 설치 명령(`claude plugin …`)은
+> Claude Code 용이고 Codex 에서는 동작하지 않는다. Codex 설치법과 포팅 범위는
+> [저장소 루트 README](../../README.md) 를 볼 것. 아래 본문의 동작 설명은 그대로 유효하다.
+
 # caseworker
 
 이슈 하나를 받아 **브랜치 → 결정 인터뷰 → 계획 → 구현 → 리뷰 → 게이트 → 커밋/푸시 → 마감**까지 끌고 가는 Claude Code 플러그인. 트래커는 골라 쓴다(기본 local 파일, jira, github).
@@ -22,6 +26,36 @@ caseworker:issue HX-a3f8    # 이슈 한 건(또는 HX-a3f8,HX-b2c1) 진행
 ```
 
 업데이트는 `claude plugin update caseworker` 후 Claude Code 재시작.
+
+## Codex CLI 에서 쓰기
+
+같은 하네스의 **Codex 판**이 [`bigbulgogiburger/caseworker_codex`](https://github.com/bigbulgogiburger/caseworker_codex) 에 있습니다.
+
+```bash
+codex plugin marketplace add bigbulgogiburger/caseworker_codex --ref main
+codex plugin add caseworker@caseworker-codex
+```
+
+**변환기는 이 저장소에 있습니다** — `scripts/build-codex.mjs` 한 벌이 caseworker 와
+[`jira-harness`](https://github.com/bigbulgogiburger/jira-harness) 의 Codex 판을 모두 찍어냅니다:
+
+```bash
+node scripts/build-codex.mjs --src . --out <caseworker_codex>
+node scripts/build-codex.mjs --src <jira-harness> --out <jira-harness_codex>
+```
+
+Codex 저장소 두 곳은 생성물이라 **거기서 고친 것은 다음 생성 때 사라집니다.** 고칠 곳은 원본
+소스이거나 원본의 `codex-overlay/`(생성 시 플러그인 디렉토리 위에 덮임)입니다. 오버레이는
+치환을 타지 않으니, 문자열을 바꿀 때는 생성기와 오버레이 **양쪽**을 봐야 합니다.
+
+치환 규칙은 **한 번도 발화하지 않으면 빌드가 exit 1 로 죽습니다** — 규칙을 넣어 놓고 안 먹는데
+초록이면 그 산출물엔 그 검사가 0이기 때문입니다. ⚠ 그래서 `min` 에 한쪽 플러그인에만 있는
+문자열을 걸면 다른 쪽 빌드가 통째로 죽습니다(실제로 죽었습니다). 규칙은 소스의 플러그인
+이름에서 만드세요.
+
+⚠ **Codex 는 플러그인을 설치해도 그 훅을 신뢰하지 않습니다** — `/hooks` 에서 검토·신뢰하기 전까지
+커밋 게이트는 "있지만 아무것도 막지 않는" 상태입니다. 차이와 미검증 항목은
+[Codex 판 README](https://github.com/bigbulgogiburger/caseworker_codex#readme) 에 정리돼 있습니다.
 
 ## 트래커는 골라 쓴다
 
