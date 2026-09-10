@@ -152,7 +152,7 @@ maker 는 **sub-agent** 가 수행한다(메인 세션이 직접 코드를 짜�
 정적 리뷰만으로 PASS 선언 금지 — 정적 grep "0건"·테스트 개수는 anti-gaming 이 막는 묘지다(정적
 0건이어도 실DB 누설·native SQL·UNIQUE 위반은 실probe 로만 잡힌다).
 
-1. **리뷰 fan-out** — 코드리뷰 sub-agent(또는 `$caseworker:issue` 의 verify 레인)로 maker 와 다른
+1. **리뷰 fan-out** — 코드리뷰 sub-agent(또는 `caseworker:issue` 의 verify 레인)로 maker 와 다른
    에이전트가 정적 검토. verdict 수령.
 2. **실환경 재probe (★필수, 이게 진짜 결함을 잡는다)** — `loop.json: dimensions[].probe` 의 해당
    dimension probe 를 실행하고 `expect` 와 대조. **held-out 프로브는 여기서 처음 돈다.**

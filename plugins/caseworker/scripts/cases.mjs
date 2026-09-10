@@ -32,7 +32,7 @@ function readBody(v) { if (v == null) return undefined; if (v === '-') return re
 
 if (!cmd) fail(2, '사용법: cases.mjs new|show|list|comment|status|link|progress … [--cwd <dir>] [--json]');
 const proj = locateProject(resolve(flags.cwd ?? process.cwd()));
-if (!proj || !proj.configPath) fail(2, 'harness.json 이 없다 — $caseworker:setup 으로 설치할 것');
+if (!proj || !proj.configPath) fail(2, 'harness.json 이 없다 — caseworker:setup 으로 설치할 것');
 const cfg = loadConfig(proj.configPath);
 let tracker;
 try { tracker = await loadTracker(cfg); } catch (e) { fail(2, e.message); }

@@ -32,7 +32,7 @@ function out(obj, code = 0, human = []) { if (asJson) console.log(JSON.stringify
 
 if (!cmd) fail(2, '사용법: graph.mjs build|ready|claim|lanes|lint|adr-timeline … [--cwd <dir>] [--json]');
 const proj = locateProject(resolve(flags.cwd ?? process.cwd()));
-if (!proj || !proj.configPath) fail(2, 'harness.json 이 없다 — $caseworker:setup 으로 설치할 것');
+if (!proj || !proj.configPath) fail(2, 'harness.json 이 없다 — caseworker:setup 으로 설치할 것');
 const cfg = loadConfig(proj.configPath);
 const root = proj.configRoot;
 const tracker = await loadTracker(cfg).catch(e => fail(2, e.message));
