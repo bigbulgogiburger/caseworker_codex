@@ -27,7 +27,7 @@ export const DEFAULTS = Object.freeze({
     jira: { start_transition: 'In Progress', done_transition: 'QA', comment_lang: 'ko', key_body: '\\d+' },
     github: { start_label: 'in-progress', done_label: 'review', key_body: '\\d+' },
   },
-  gate: { timeout_s: 1800, commit_budget_s: 180 },
+  gate: { timeout_s: 1800, commit_budget_s: 180, push_level: 'full' },
 });
 
 /**

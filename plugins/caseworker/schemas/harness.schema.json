@@ -276,6 +276,11 @@
           "type": "integer",
           "minimum": 30,
           "description": "경량 게이트 목표 시간(초과해도 실패는 아니고 기록만)"
+        },
+        "push_level": {
+          "type": "string",
+          "enum": ["full", "related"],
+          "description": "push·complete 가 요구하는 게이트 — full(기본: 이슈마다 전량) · related(이슈마다 compile·lint·관련 테스트·DoD — 전체 스위트·build·extra 는 기본 브랜치에서 여러 이슈 머지 뒤 gate.mjs --main 1회)"
         }
       }
     },
@@ -338,6 +343,19 @@
             "null"
           ],
           "description": "KEY=VALUE 줄 파일(gitignore). 게이트 명령 환경에 주입"
+        },
+        "related": {
+          "type": "object",
+          "description": "관련 테스트 게이트(gate.mjs --related)의 선택 규칙 — adapter 가 없으면(그리고 jira-harness v3 설정의 dod_tests 도 없으면) 그 스택은 전체 테스트로 돈다. 선택 기본값은 scripts/lib/related-tests.mjs RELATED_DEFAULTS",
+          "properties": {
+            "adapter": { "type": "string", "enum": ["gradle-junit", "vitest"], "description": "테스트 러너 — gradle-junit(바뀐 클래스를 쓰는 테스트 클래스를 --tests 로) · vitest(vitest related --run)" },
+            "run": { "type": "string", "description": "선택 없이 도는 기본 명령(기본 = 스택 test). 게이트가 선택과 리포터 인자를 덧붙인다 — vitest 는 \"vitest run\" 꼴이어야 한다(아니면 command)" },
+            "reports": { "type": "string", "description": "gradle-junit: JUnit XML 디렉터리(스택 dir 기준). 기본 build/test-results/test — 관련 테스트 건수를 여기서 센다" },
+            "fallback_full": { "type": "array", "items": { "type": "string" }, "description": "스택 dir 기준 glob — 하나라도 바뀌면 그 스택은 전체 테스트(빌드 설정·의존성·공용 리소스)" },
+            "test_roots": { "type": "array", "items": { "type": "string" }, "description": "gradle-junit: 테스트 소스 루트(기본 src/test/java · src/test/kotlin)" },
+            "max_selected": { "type": "integer", "minimum": 1, "description": "선택이 이보다 많으면 전체 테스트(gradle 기본 250 — 명령줄 길이)" },
+            "command": { "type": "string", "description": "선택을 넣을 명령 — {files} 자리에 선택(따옴표 붙음)이 들어간다. vitest 의 run 이 \"vitest run\" 꼴이 아니면 필요" }
+          }
         }
       }
     }
